@@ -17,7 +17,10 @@ Installs needed:
 
 
 
----------------Start APP------------------
-
+---------------Start DATABASE ------------------
+Navigate to the server folder
+Type the following below
 `docker-compose up -d --build`
+`docker-compose exec app npx knex migrate:latest`
+`docker-compose exec app npx knex seed:run`
 In a seperate terminal: `docker-compose exec db psql -U postgres -d store`
