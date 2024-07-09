@@ -4,14 +4,11 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('user_account', table => {
-    table.increments('id').primary();
-    table.boolean('isNewMember');
-    table.boolean('isAppAdmin');
-    table.boolean('isTaskAdmin');
-    table.boolean('isLeadership');
-    table.string('MemberName');
-    table.string('MemberEmail');
-    table.boolean('isInProcessed');
+    table.increments('Id').primary();
+    table.string('FirstName');
+    table.string('LastName');
+    table.string('UserName');
+    table.string('Password');
   });
 };
 

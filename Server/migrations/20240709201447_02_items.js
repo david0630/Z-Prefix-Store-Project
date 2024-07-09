@@ -3,11 +3,12 @@
  * @returns { Promise<void> }
  */
 exports.up = function(knex) {
-  return knex.schema.createTable('in_processing_task', table => {
+  return knex.schema.createTable('items', table => {
     table.increments('id').primary();
-    table.string('TaskName');
-    table.string('TaskDetails');
-    table.integer('TaskAdmin');
+    table.integer('UserID');
+    table.string('ItemName');
+    table.string('Description');
+    table.integer('Quantity');
   });
 };
 
@@ -16,5 +17,5 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-  return knex.schema.dropTableIfExists('in_processing_task');
+  return knex.schema.dropTableIfExists('items');
 };
