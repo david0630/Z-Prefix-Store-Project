@@ -128,7 +128,7 @@ app.delete("/users/:Id", async (req, res) => {
 // table.string('Description');
 // table.integer('Quantity');
 
-// Create a Task: POST /tasks
+// Create a item: POST /items
 app.post("/items", async (req, res) => {
   //Logic to add a user
   const { UserID, ItemName, Description, Quantity} = req.body;
@@ -179,25 +179,25 @@ app.get("/items/:id", async (req, res) => {
   // Logic to get a single item
   try {
     const item = await knex("items")
-      .where("id", req.params.Id)
+      .where("id", req.params.id)
       .first();
     if (!item) {
       return res.status(404).send("Item not found");
     }
-    res.json(task);
+    res.json(item);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-// Update a item: PUT /tasks/:id
-app.put("/tasks/:id", async (req, res) => {
+// Update a item: PUT /items/:id
+app.put("/items/:id", async (req, res) => {
   // Logic to update a item
   const { UserID, ItemName, Description, Quantity } = req.body;
 
   try {
     const updatedItem = await knex("items")
-      .where("id", req.params.Id)
+      .where("id", req.params.id)
       .update({
         UserID,
         ItemName,
@@ -219,10 +219,10 @@ app.put("/tasks/:id", async (req, res) => {
 //NEED TO KNEXIFY
 // Delete a item: DELETE /items/:id
 app.delete("/items/:id", async (req, res) => {
-  // Logic to delete a task
+  // Logic to delete a items
   try {
     const deleted = await knex("items")
-      .where("id", req.params.Id)
+      .where("id", req.params.id)
       .del();
     if (!deleted) {
       return res.status(404).send("Item not found");
