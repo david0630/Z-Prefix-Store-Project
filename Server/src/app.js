@@ -15,37 +15,31 @@ app.get("/", (req, res) => {
   res.send("Application up and running!");
 });
 
-//// USERS TABLE CRUD ////-----------------------------------------------------------------------------------------------------
-//id, isNewMember, isAppAdmin, isTaskAdmin, isLeadership, Member Name, Member Email, isInProcessed
+//// 01_USERS TABLE CRUD ////-----------------------------------------------------------------------------------------------------
+//Id, FirstName, LastName, UserName, Password
 
 // Create a User: POST /users
 app.post("/users", async (req, res) => {
   //Logic to add a user
   const {
-    isNewMember,
-    isAppAdmin,
-    isTaskAdmin,
-    isLeadership,
-    MemberName,
-    MemberEmail,
-    isInProcessed,
+    FirstName,
+    LastName,
+    UserName,
+    Password,
   } = req.body;
 
-  if (!MemberName || !MemberEmail) {
-    return res.status(400).send("Missing User Name or Email");
+  if (!UserName || !UserName) {
+    return res.status(400).send("Missing or incorrect UserName!");
   }
   //ACTION add additional data validation
 
   try {
     const [newUser] = await knex("user_account")
       .insert({
-        isNewMember,
-        isAppAdmin,
-        isTaskAdmin,
-        isLeadership,
-        MemberName,
-        MemberEmail,
-        isInProcessed,
+        FirstName,
+        LastName,
+        UserName,
+        Password,
       })
       .returning("*");
 
@@ -67,10 +61,10 @@ app.get("/users", async (req, res) => {
 });
 
 // Get a Single User: GET /users/:id
-app.get("/users/:id", async (req, res) => {
+app.get("/users/:Id", async (req, res) => {
   // Logic to get a single user
   try {
-    const user = await knex("user_account").where("id", req.params.id).first();
+    const user = await knex("user_account").where("Id", req.params.Id).first();
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -80,30 +74,24 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
-// Update a Book: PUT /users/:id
-app.put("/users/:id", async (req, res) => {
+// Update a user: PUT /users/:id
+app.put("/users/:Id", async (req, res) => {
   // Logic to update a user
   const {
-    isNewMember,
-    isAppAdmin,
-    isTaskAdmin,
-    isLeadership,
-    MemberName,
-    MemberEmail,
-    isInProcessed,
+    FirstName,
+    LastName,
+    UserName,
+    Password,
   } = req.body;
 
   try {
     const updatedUser = await knex("user_account")
-      .where("id", req.params.id)
+      .where("Id", req.params.IDd)
       .update({
-        isNewMember,
-        isAppAdmin,
-        isTaskAdmin,
-        isLeadership,
-        MemberName,
-        MemberEmail,
-        isInProcessed,
+        FirstName,
+        LastName,
+        UserName,
+        Password,
       })
       .returning("*");
 
@@ -118,10 +106,10 @@ app.put("/users/:id", async (req, res) => {
 });
 
 // Delete a Book: DELETE /users/:id
-app.delete("/users/:id", async (req, res) => {
+app.delete("/users/:Id", async (req, res) => {
   // Logic to delete a user
   try {
-    const deleted = await knex("user_account").where("id", req.params.id).del();
+    const deleted = await knex("user_account").where("Id", req.params.Id).del();
     if (!deleted) {
       return res.status(404).send("User not found");
     }
@@ -131,64 +119,70 @@ app.delete("/users/:id", async (req, res) => {
   }
 });
 
-//// TASKS TABLE CRUD ////-------------------------------------------------------------------------------------------------------------------
-//id, Task Name, Task Details, Task Admin
+//// items TABLE CRUD ////-------------------------------------------------------------------------------------------------------------------
+//id, UserID, ItemName, Description, Quantity
+
+// table.increments('id').primary();
+// table.integer('UserID');
+// table.string('ItemName');
+// table.string('Description');
+// table.integer('Quantity');
 
 // Create a Task: POST /tasks
-app.post("/tasks", async (req, res) => {
+app.post("/items", async (req, res) => {
   //Logic to add a user
-  const { taskName, taskDetail, taskAdmin, taskPriority } = req.body;
+  const { UserID, ItemName, Description, Quantity} = req.body;
 
-  if (!taskName || !taskDetail) {
-    return res.status(400).send("Missing Task Name or Details");
+  if (!ItemName || !Description) {
+    return res.status(400).send("Missing Item Name or Description");
   }
-  if (!taskAdmin) {
+  if (!UserID) {
     return res
       .status(400)
-      .send("Missing Task Administator. Enter as user id of Task Admin");
+      .send("Missing the Inventory Owner ID of that Item. Enter as user Id of the corresponding store owner");
   }
-  if (!taskPriority) {
+  if (!Quantity) {
     return res
       .status(400)
-      .send("Missing Task Priority. Enter as number of days after arrival.");
+      .send("Missing Quantity. Enter a number for the amount of that particular item you will have stocked.");
   }
 
   try {
-    const [newTask] = await knex("in_processing_task")
+    const [newItem] = await knex("items")
       .insert({
-        taskName,
-        taskDetail,
-        idTaskAdmin,
-        taskPriority,
+        UserID,
+        ItemName,
+        Description,
+        Quantity,
       })
       .returning("*");
 
-    res.status(201).send(newTask);
+    res.status(201).send(newItem);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-// Get All Tasks: GET /tasks
-app.get("/tasks", async (req, res) => {
-  // Logic to get all tasks
+// Get All items: GET /items
+app.get("/items", async (req, res) => {
+  // Logic to get all items
   try {
-    const tasks = await knex("in_processing_task").select("*");
-    res.json(tasks);
+    const items = await knex("items").select("*");
+    res.json(items);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-// Get a Single Task: GET /tasks/:id
-app.get("/tasks/:id", async (req, res) => {
-  // Logic to get a single task
+// Get a Single item: GET /items/:id
+app.get("/items/:id", async (req, res) => {
+  // Logic to get a single item
   try {
-    const task = await knex("in_processing_task")
-      .where("id", req.params.id)
+    const item = await knex("items")
+      .where("id", req.params.Id)
       .first();
-    if (!task) {
-      return res.status(404).send("User not found");
+    if (!item) {
+      return res.status(404).send("Item not found");
     }
     res.json(task);
   } catch (error) {
@@ -196,140 +190,42 @@ app.get("/tasks/:id", async (req, res) => {
   }
 });
 
-// Update a Task: PUT /tasks/:id
+// Update a item: PUT /tasks/:id
 app.put("/tasks/:id", async (req, res) => {
-  // Logic to update a task
-  const { taskName, taskDetail, taskAdmin, taskPriority } = req.body;
+  // Logic to update a item
+  const { UserID, ItemName, Description, Quantity } = req.body;
 
   try {
-    const updatedTask = await knex("in_processing_task")
-      .where("id", req.params.id)
+    const updatedItem = await knex("items")
+      .where("id", req.params.Id)
       .update({
-        taskName,
-        taskDetail,
-        taskAdmin,
-        taskPriority,
+        UserID,
+        ItemName,
+        Description,
+        Quantity,
       })
       .returning("*");
 
-    if (!updatedTask.length) {
-      return res.status(404).send("Task not found");
+    if (!updatedItem.length) {
+      return res.status(404).send("Item not found");
     }
 
-    res.json(updatedTask[0]);
+    res.json(updatedItem[0]);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
 //NEED TO KNEXIFY
-// Delete a Task: DELETE /tasks/:id
-app.delete("/task/:id", async (req, res) => {
+// Delete a item: DELETE /items/:id
+app.delete("/items/:id", async (req, res) => {
   // Logic to delete a task
   try {
-    const deleted = await knex("in_processing_task")
-      .where("id", req.params.id)
+    const deleted = await knex("items")
+      .where("id", req.params.Id)
       .del();
     if (!deleted) {
-      return res.status(404).send("Task not found");
-    }
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-///// Joined task assignment table //// ------------------------------------------------------------------------------
-//id, idMember, idTask, isComplete
-
-// NEW needs testing
-app.post("/assignments", async (req, res) => {
-  // Logic to create new assignment
-  const { idUser, idTask } = req.body;
-  const isComplete = false; //new assignment not complete by defualt
-
-  if (!idUser || !idTask) {
-    return res
-      .status(400)
-      .send("User ID and Task ID are required to make an assignment");
-  }
-
-  // how to post to table NOT CONFIDENT in this one =>
-  try {
-    const [newAssignment] = await knex("member_task_assignment")
-      .insert({
-        idUser,
-        idTask,
-        isComplete,
-      })
-      .returning("*");
-
-    res.status(201).send(newAssignment);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Put isComplete Assignment Flag: Put /assignments/:id
-app.put("/assignments/:id", async (req, res) => {
-  //Logic to update the isComplete flag
-
-  const { isComplete } = req.body; // only takkes in Boolean to set flag as true vs false
-
-  try {
-    const updatedAssignment = await knex("member_task_assignment")
-      .where("id", req.params.id)
-      .update({
-        isComplete,
-      })
-      .returning("*");
-
-    if (!updatedAssignment.length) {
-      return res.status(404).send("Assignment not found");
-    }
-
-    res.json(updatedAssignment[0]);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Get All Assignments: GET /assignments
-app.get("/assignments", async (req, res) => {
-  // Logic to get all assignments
-  try {
-    const assignments = await knex("member_task_assignment").select("*");
-    res.json(assignments);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Get a Single assignment: GET /assignments/:id
-app.get("/assignments/:id", async (req, res) => {
-  // Logic to get a single assignment
-  try {
-    const assignment = await knex("member_task_assignment")
-      .where("id", req.params.id)
-      .first();
-    if (!assignment) {
-      return res.status(404).send("Assignment not found");
-    }
-    res.json(assignment);
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-// Delete a assignment: DELETE /assignments/:id
-app.delete("/assignments/:id", async (req, res) => {
-  // Logic to delete a assignment
-  try {
-    const deleted = await knex("member_task_assignment")
-      .where("id", req.params.id)
-      .del();
-    if (!deleted) {
-      return res.status(404).send("Assignment not found");
+      return res.status(404).send("Item not found");
     }
     res.status(204).send();
   } catch (error) {
