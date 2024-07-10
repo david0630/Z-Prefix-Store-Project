@@ -186,8 +186,14 @@ app.post("/items", async (req, res) => {
 // Get All items: GET /items
 app.get("/items", async (req, res) => {
   // Logic to get all items
+  const userId = req.query.userId; // get the userId from the query parameter
   try {
-    const items = await knex("items").select("*");
+    let items;
+    if (userId) { //if there is a userID present in the url
+      items = await knex("items").where("UserID", userId).select("*"); //get all the items for that corresponding userid
+    } else {
+      items = await knex("items").select("*");//if empty in case of visitor, return everything.
+    }
     res.json(items);
   } catch (error) {
     res.status(500).send(error.message);

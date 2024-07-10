@@ -7,7 +7,9 @@ const ItemsPage = ({ user }) => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/items');
+        const response = await axios.get('http://localhost:8081/items', {
+          params: { userId: user ? user.Id : null }
+        });
         setItems(response.data);
       } catch (error) {
         console.error('Error fetching items', error);
@@ -15,7 +17,7 @@ const ItemsPage = ({ user }) => {
     };
 
     fetchItems();
-  }, []);
+  }, [user]);
 
   return (
     <div>
