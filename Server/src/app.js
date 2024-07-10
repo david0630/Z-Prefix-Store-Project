@@ -86,7 +86,7 @@ app.put("/users/:Id", async (req, res) => {
 
   try {
     const updatedUser = await knex("user_account")
-      .where("Id", req.params.IDd)
+      .where("Id", req.params.Id)
       .update({
         FirstName,
         LastName,
