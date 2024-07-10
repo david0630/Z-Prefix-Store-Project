@@ -15,6 +15,24 @@ app.get("/", (req, res) => {
   res.send("Application up and running!");
 });
 
+
+
+
+//---------------------------------------------Login Page-------------------------------------------
+
+
+const users = [{ username: 'user1', password: 'password' }]; //this is just for me to test as dummy data, get rid of it later
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(401).send('Incorrect UserName or Password');
+  }
+});
+
 //// 01_USERS TABLE CRUD ////-----------------------------------------------------------------------------------------------------
 //Id, FirstName, LastName, UserName, Password
 
