@@ -28,7 +28,7 @@ app.post("/users", async (req, res) => {
     Password,
   } = req.body;
 
-  if (!UserName || !UserName) {
+  if ((!FirstName || !LastName || !UserName || !Password)) {
     return res.status(400).send("Missing or incorrect UserName!");
   }
   //ACTION add additional data validation
@@ -105,7 +105,7 @@ app.put("/users/:Id", async (req, res) => {
   }
 });
 
-// Delete a Book: DELETE /users/:id
+// Delete a user: DELETE /users/:id
 app.delete("/users/:Id", async (req, res) => {
   // Logic to delete a user
   try {
