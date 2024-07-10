@@ -21,15 +21,17 @@ app.get("/", (req, res) => {
 //---------------------------------------------Login Page-------------------------------------------
 
 
-const users = [{ username: 'user1', password: 'password' }]; //this is just for me to test as dummy data, get rid of it later
-
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const user = users.find(u => u.username === username && u.password === password);
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(401).send('Incorrect UserName or Password');
+  try {
+    const user = await knex("user_account").where({ UserName: username, Password: password }).first();
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(401).send('Invalid username or password');
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
