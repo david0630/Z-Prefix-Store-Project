@@ -1,5 +1,7 @@
+// frontend/src/components/LoginPage.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const LoginPage = ({ setIsLoggedIn, setUser }) => {
   const [username, setUsername] = useState('');
@@ -43,6 +45,7 @@ const LoginPage = ({ setIsLoggedIn, setUser }) => {
       />
       <button onClick={handleLogin}>Login</button>
       <button onClick={handleVisitorLogin}>Enter as Visitor</button>
+      <Link to="/register">Register</Link>
       {error && <p>{error}</p>}
     </div>
   );
