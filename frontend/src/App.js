@@ -6,10 +6,15 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUser(null);
+  };
+
   return (
     <div>
       {isLoggedIn ? (
-        <ItemsPage user={user} />
+        <ItemsPage user={user} handleLogout={handleLogout} />
       ) : (
         <LoginPage setIsLoggedIn={setIsLoggedIn} setUser={setUser} />
       )}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const ItemsPage = ({ user }) => {
+const ItemsPage = ({ user, handleLogout }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -24,6 +24,7 @@ const ItemsPage = ({ user }) => {
   return (
     <div>
       <h2>Items</h2>
+      <button onClick={handleLogout}>Logout</button>
       <ul>
         {items.map((item) => (
           <li key={item.id}>
