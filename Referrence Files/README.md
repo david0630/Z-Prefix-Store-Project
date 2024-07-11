@@ -15,13 +15,17 @@ Installs needed:
 `npm list knex`
 `npm install dotenv`
 
+Intall on frontend:
+`npm install axios`
+
 
 
 ---------------Start DATABASE ------------------
 Navigate to the server folder
 Type the following below
 `docker-compose up -d --build`
-For the two lines below, may need to open anothe seperate terminal in the server folder if docker stays up:
+For the two lines below, may need to open another seperate terminal in the server folder if docker stays up:
 `docker-compose exec app npx knex migrate:latest`
 `docker-compose exec app npx knex seed:run`
 In a seperate terminal: `docker-compose exec db psql -U postgres -d store`
+Navigate to /frontend: `npm start`
