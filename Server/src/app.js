@@ -184,21 +184,30 @@ app.post("/items", async (req, res) => {
 });
 
 // Get All items: GET /items
+// Get All items: GET /items
 app.get("/items", async (req, res) => {
-  // Logic to get all items
-  const userId = req.query.userId; // get the userId from the query parameter
+  const userId = req.query.userId; // Get user ID from query parameters
   try {
     let items;
-    if (userId) { //if there is a userID present in the url
-      items = await knex("items").where("UserID", userId).select("*"); //get all the items for that corresponding userid
+    if (userId) {
+      // If user ID is provided, fetch only their items
+      items = await knex("items")
+        .join("user_account", "items.UserID", "user_account.Id")
+        .select("items.*", "user_account.FirstName", "user_account.LastName", "user_account.UserName")
+        .where("items.UserID", userId);
     } else {
-      items = await knex("items").select("*");//if empty in case of visitor, return everything.
+      // Fetch all items
+      items = await knex("items")
+        .join("user_account", "items.UserID", "user_account.Id")
+        .select("items.*", "user_account.FirstName", "user_account.LastName", "user_account.UserName");
     }
     res.json(items);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
+
+
 
 // Get a Single item: GET /items/:id
 app.get("/items/:id", async (req, res) => {

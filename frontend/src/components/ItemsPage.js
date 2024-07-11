@@ -8,7 +8,9 @@ const ItemsPage = ({ user }) => {
     const fetchItems = async () => {
       try {
         const response = await axios.get('http://localhost:8081/items', {
-          params: { userId: user ? user.Id : null }
+          params: {
+            userId: user ? user.Id : null,
+          },
         });
         setItems(response.data);
       } catch (error) {
@@ -24,7 +26,12 @@ const ItemsPage = ({ user }) => {
       <h2>Items</h2>
       <ul>
         {items.map((item) => (
-          <li key={item.id}>{item.ItemName}</li>
+          <li key={item.id}>
+            <h3>{item.ItemName}</h3>
+            <p>Description: {item.Description}</p>
+            <p>Quantity: {item.Quantity}</p>
+            <p>Owner: {item.FirstName} {item.LastName} ({item.UserName})</p>
+          </li>
         ))}
       </ul>
     </div>
