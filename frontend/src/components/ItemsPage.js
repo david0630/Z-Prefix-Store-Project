@@ -1,15 +1,20 @@
+// frontend/src/components/ItemsPage.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const ItemsPage = ({ user, handleLogout }) => {
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({ ItemName: '', Description: '', Quantity: '' });
-  const [editingItem, setEditingItem] = useState(null);
+  const [itemName, setItemName] = useState('');
+  const [description, setDescription] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [editingItemId, setEditingItemId] = useState(null);
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(`http://localhost:8081/items?userId=${user.Id}`);
+        const response = await axios.get('http://localhost:8081/items', {
+          params: user ? { userId: user.Id } : {},
+        });
         setItems(response.data);
       } catch (error) {
         console.error('Error fetching items', error);
@@ -19,32 +24,21 @@ const ItemsPage = ({ user, handleLogout }) => {
     fetchItems();
   }, [user]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewItem({ ...newItem, [name]: value });
-  };
-
   const handleCreateItem = async () => {
     try {
-      const response = await axios.post('http://localhost:8081/items', { ...newItem, UserID: user.Id });
+      const newItem = {
+        UserID: user.Id,
+        ItemName: itemName,
+        Description: description,
+        Quantity: quantity,
+      };
+      const response = await axios.post('http://localhost:8081/items', newItem);
       setItems([...items, response.data]);
-      setNewItem({ ItemName: '', Description: '', Quantity: '' });
+      setItemName('');
+      setDescription('');
+      setQuantity('');
     } catch (error) {
       console.error('Error creating item', error);
-    }
-  };
-
-  const handleEditItem = (item) => {
-    setEditingItem(item);
-  };
-
-  const handleUpdateItem = async () => {
-    try {
-      const response = await axios.put(`http://localhost:8081/items/${editingItem.id}`, editingItem);
-      setItems(items.map(item => (item.id === editingItem.id ? response.data : item)));
-      setEditingItem(null);
-    } catch (error) {
-      console.error('Error updating item', error);
     }
   };
 
@@ -57,76 +51,116 @@ const ItemsPage = ({ user, handleLogout }) => {
     }
   };
 
-  const handleEditingChange = (e) => {
-    const { name, value } = e.target;
-    setEditingItem({ ...editingItem, [name]: value });
+  const handleEditItem = (item) => {
+    setEditingItemId(item.id);
+    setItemName(item.ItemName);
+    setDescription(item.Description);
+    setQuantity(item.Quantity);
   };
+
+  const handleUpdateItem = async (id) => {
+    try {
+      const updatedItem = {
+        UserID: user.Id,
+        ItemName: itemName,
+        Description: description,
+        Quantity: quantity,
+      };
+      const response = await axios.put(`http://localhost:8081/items/${id}`, updatedItem);
+      setItems(items.map(item => (item.id === id ? response.data : item)));
+      setEditingItemId(null);
+      setItemName('');
+      setDescription('');
+      setQuantity('');
+    } catch (error) {
+      console.error('Error updating item', error);
+    }
+  };
+
+  const groupedItems = items.reduce((acc, item) => {
+    const ownerKey = `${item.FirstName} ${item.LastName} (${item.UserName})`;
+    if (!acc[ownerKey]) {
+      acc[ownerKey] = [];
+    }
+    acc[ownerKey].push(item);
+    return acc;
+  }, {});
 
   return (
     <div>
       <h2>Items</h2>
       <button onClick={handleLogout}>Logout</button>
-      <ul>
-        {items.map((item) => (
-          <li key={item.id}>
-            {editingItem && editingItem.id === item.id ? (
-              <div>
-                <input
-                  type="text"
-                  name="ItemName"
-                  value={editingItem.ItemName}
-                  onChange={handleEditingChange}
-                />
-                <input
-                  type="text"
-                  name="Description"
-                  value={editingItem.Description}
-                  onChange={handleEditingChange}
-                />
-                <input
-                  type="number"
-                  name="Quantity"
-                  value={editingItem.Quantity}
-                  onChange={handleEditingChange}
-                />
-                <button onClick={handleUpdateItem}>Save</button>
-                <button onClick={() => setEditingItem(null)}>Cancel</button>
-              </div>
-            ) : (
-              <div>
-                <p><strong>{item.ItemName}</strong></p>
-                <p>Description: {item.Description}</p>
-                <p>Quantity: {item.Quantity}</p>
-                <button onClick={() => handleEditItem(item)}>Edit</button>
-                <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
-              </div>
-            )}
-          </li>
+      <div>
+        {Object.entries(groupedItems).map(([owner, ownerItems]) => (
+          <div key={owner}>
+            <h3>{owner}</h3>
+            <ul>
+              {ownerItems.map(item => (
+                <li key={item.id}>
+                  {editingItemId === item.id ? (
+                    <div>
+                      <input
+                        type="text"
+                        value={itemName}
+                        onChange={(e) => setItemName(e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                      />
+                      <button onClick={() => handleUpdateItem(item.id)}>Save</button>
+                      <button onClick={() => setEditingItemId(null)}>Cancel</button>
+                    </div>
+                  ) : (
+                    <div>
+                      <strong>{item.ItemName}</strong>
+                      <p>Description: {item.Description}</p>
+                      <p>Quantity: {item.Quantity}</p>
+                      {user && user.Id === item.UserID && (
+                        <div>
+                          <button onClick={() => handleDeleteItem(item.id)}>Delete</button>
+                          <button onClick={() => handleEditItem(item)}>Edit</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </li>
+              ))}
+              {ownerItems.length === 0 && <p>No items available</p>}
+            </ul>
+          </div>
         ))}
-      </ul>
-      <h3>Create New Item</h3>
-      <input
-        type="text"
-        name="ItemName"
-        placeholder="Item Name"
-        value={newItem.ItemName}
-        onChange={handleInputChange}
-      />
-      <input
-        type="text"
-        name="Description"
-        placeholder="Description"
-        value={newItem.Description}
-        onChange={handleInputChange}
-      />
-      <input
-        type="number"
-        name="Quantity"
-        placeholder="Quantity"
-        value={newItem.Quantity}
-        onChange={handleInputChange}
-      />
-      <button onClick={handleCreateItem}>Create Item</button>
+      </div>
+      {user && (
+        <div>
+          <h3>Create New Item</h3>
+          <input
+            type="text"
+            placeholder="Item Name"
+            value={itemName}
+            onChange={(e) => setItemName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="Quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+          <button onClick={handleCreateItem}>Create Item</button>
+        </div>
+      )}
     </div>
   );
 };
