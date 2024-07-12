@@ -38,7 +38,7 @@ Intall on frontend:
 ---------------Start DATABASE ------------------
 
 Navigate to the server folder
-Type the following below
+Type the following below:
 `docker-compose up -d --build`
 For the two lines below, may need to open another seperate terminal in the server folder if docker stays up:
 `docker-compose exec app npx knex migrate:latest`
